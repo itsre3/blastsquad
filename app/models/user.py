@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Uuid, String, Index, text, DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
 
@@ -15,7 +15,6 @@ class User(Base):
     )
     username: Mapped[str] = mapped_column(
         String(30),
-        unique=True,
         nullable=False,
     )
     email: Mapped[str | None] = mapped_column(
@@ -35,10 +34,21 @@ class User(Base):
         nullable=False,
     )
 
+    wallets: Mapped[list["Wallet"]] = relationship(
+        back_populates="user"
+    )
+    credentials: Mapped[list["Credential"]] = relationship(
+        back_populates="user"
+    )
+    reviews_received: Mapped[list["Review"]] = relationship(
+        back_populates="subject"
+    )
+
     __table_args__ = (
         Index(
-            name="ix_users_username_lower",
-            expressions=text("lower(username)"),
+            "ix_users_username_lower",
+            #expressions=text("lower(username)"),
+            text("lower(username)"),
             unique=True,
-        )
+        ),
     )
